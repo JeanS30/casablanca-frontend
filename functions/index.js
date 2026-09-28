@@ -2,6 +2,7 @@ const { initializeApp } = require("firebase-admin/app");
 const { getFirestore } = require("firebase-admin/firestore");
 const { onCall } = require("firebase-functions/v2/https");
 const { crearHito } = require("./hitoFactory");
+const { obtenerAdapter } = require("./prestadorAdapter");
 const {
   VisitaSubject,
   ContadorVisitasObserver,
@@ -9,23 +10,19 @@ const {
 } = require("./visitaObserver");
 
 // ---------------------------------------------
-// PATRÓN SINGLETON (ya lo teníamos)
+// PATRÓN SINGLETON
 // ---------------------------------------------
 initializeApp();
 const db = getFirestore();
 
 // Armamos el Subject UNA vez y le agregamos los dos observadores.
-// Esto también respeta el espíritu del Singleton: un solo Subject
-// compartido por toda la función, no uno nuevo cada vez.
 const visitaSubject = new VisitaSubject();
 visitaSubject.agregarObservador(new ContadorVisitasObserver(db));
 visitaSubject.agregarObservador(new NotificadorLogroObserver(db));
 
 // ---------------------------------------------
-// FUNCIÓN: escanearHito
+// FUNCIÓN: escanearHito (Factory + Observer)
 // ---------------------------------------------
-// Esto es lo que Jean va a llamar desde el frontend cuando el turista
-// escanea un código QR. El QR codifica el par { rutaId, hitoId }.
 exports.escanearHito = onCall(async (request) => {
   const { rutaId, hitoId } = request.data;
 
@@ -33,7 +30,6 @@ exports.escanearHito = onCall(async (request) => {
     throw new Error("Faltan rutaId o hitoId en la solicitud.");
   }
 
-  // 1. Traer los datos crudos del hito desde Firestore.
   const hitoRef = db.collection("rutas").doc(rutaId).collection("hitos").doc(hitoId);
   const hitoSnap = await hitoRef.get();
 
@@ -43,15 +39,36 @@ exports.escanearHito = onCall(async (request) => {
 
   const datosHito = hitoSnap.data();
 
-  // 2. Usar la FACTORY para construir el objeto correcto (audio/texto/imagen).
+  // FACTORY: construye el objeto correcto según el tipo del hito.
   const hito = crearHito(datosHito);
   const contenido = hito.obtenerContenido();
 
-  // 3. Preparar el resultado que se le va a devolver al frontend.
   const resultado = { contenido, logroDesbloqueado: null };
 
-  // 4. Notificar a los OBSERVERS: incrementa el contador y revisa si hay logro.
+  // OBSERVERS: incrementa el contador y revisa si hay logro.
   await visitaSubject.notificar({ rutaId, hitoId, datosHito, resultado });
 
   return resultado;
+});
+
+// ---------------------------------------------
+// FUNCIÓN: registrarDesdePrestador (Adapter)
+// ---------------------------------------------
+exports.registrarDesdePrestador = onCall(async (request) => {
+  const { tipoPrestador, datosCrudos } = request.data;
+
+  if (!tipoPrestador || !datosCrudos) {
+    throw new Error("Faltan tipoPrestador o datosCrudos en la solicitud.");
+  }
+
+  // ADAPTER: traduce el formato del prestador al formato interno.
+  const adapter = obtenerAdapter(tipoPrestador);
+  const registroAdaptado = adapter.adaptar(datosCrudos);
+
+  const docRef = await db.collection("registrosTuristas").add({
+    ...registroAdaptado,
+    fechaRegistro: new Date(),
+  });
+
+  return { id: docRef.id, registroGuardado: registroAdaptado };
 });

@@ -1,23 +1,22 @@
-// ---------------------------------------------
-// PATRÓN FACTORY
-// ---------------------------------------------
-// Cada tipo de Hito (audio, texto, imagen) entrega su contenido de forma
-// distinta. En vez de que el código que llama tenga que preguntar
-// "¿es audio? ¿es texto?" cada vez, la Factory decide qué tipo de objeto
-// construir según el campo "tipo", y siempre entrega la misma interfaz:
-// el método obtenerContenido().
+// Contrato uniforme: todos los tipos devuelven las mismas claves,
+// para que el frontend pueda mostrar imagen, audio y texto
+// sin importar el tipo del hito.
+function contenidoBase(datos, tipo) {
+  return {
+    tipo,
+    nombre: datos.nombre,
+    texto: datos.contenidoTexto || datos.descripcion || "",
+    imagenUrl: datos.contenidoImagenUrl || null,
+    audioUrl: datos.contenidoAudioUrl || null,
+  };
+}
 
 class HitoAudio {
   constructor(datos) {
     this.datos = datos;
   }
   obtenerContenido() {
-    return {
-      tipo: "audio",
-      nombre: this.datos.nombre,
-      audioUrl: this.datos.contenidoAudioUrl,
-      texto: this.datos.contenidoTexto || null,
-    };
+    return contenidoBase(this.datos, "audio");
   }
 }
 
@@ -26,11 +25,7 @@ class HitoTexto {
     this.datos = datos;
   }
   obtenerContenido() {
-    return {
-      tipo: "texto",
-      nombre: this.datos.nombre,
-      texto: this.datos.contenidoTexto,
-    };
+    return contenidoBase(this.datos, "texto");
   }
 }
 
@@ -39,17 +34,11 @@ class HitoImagen {
     this.datos = datos;
   }
   obtenerContenido() {
-    return {
-      tipo: "imagen",
-      nombre: this.datos.nombre,
-      imagenUrl: this.datos.contenidoImagenUrl,
-      texto: this.datos.contenidoTexto || null,
-    };
+    return contenidoBase(this.datos, "imagen");
   }
 }
 
-// Esta es la Factory propiamente tal: recibe los datos crudos del
-// documento de Firestore y devuelve el objeto correcto ya construido.
+// La Factory: decide qué clase construir según el campo "tipo".
 function crearHito(datos) {
   switch (datos.tipo) {
     case "audio":
