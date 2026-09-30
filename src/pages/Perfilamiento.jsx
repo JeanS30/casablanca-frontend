@@ -23,7 +23,7 @@ const Perfilamiento = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await addDoc(collection(db, 'turistas'), {
+      await addDoc(collection(db, 'registrosTuristas'), {
         ...formData,
         edad: Number(formData.edad),
         gastoPromedio: Number(formData.gastoPromedio),
