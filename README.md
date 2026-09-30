@@ -70,7 +70,7 @@ Gamificación completa que incluye:
 - Progreso persistente mediante `localStorage`.
 
 ### 👤 Formulario de Perfilamiento
-Captura de datos del visitante: nacionalidad, edad, género, motivación de viaje, gasto promedio y días de estadía. Alimenta la base de datos de la Oficina de Turismo para la toma de decisiones basada en datos.
+Captura de datos del visitante: nacionalidad, edad, género, motivación de viaje, gasto promedio y días de estadía. Los registros se guardan en la colección `registrosTuristas` de Firestore, con reglas de seguridad que garantizan el cumplimiento de la **Ley 19.628** de Protección de la Vida Privada.
 
 ---
 
@@ -95,8 +95,8 @@ Captura de datos del visitante: nacionalidad, edad, género, motivación de viaj
 
 ## 📁 Estructura del Proyecto
 casablanca-frontend/
-├── public/
-│ ├── imagenes/ # Imágenes de los hitos turísticos
+├── public/ # Archivos estáticos servidos en la raíz
+│ ├── imagenes/ # Fotos de los hitos
 │ ├── audio/ # Audioguías en formato MP3
 │ ├── hero.jpg # Imagen principal del hero
 │ └── logo.png # Logo del proyecto
@@ -106,20 +106,28 @@ casablanca-frontend/
 │ ├── hooks/
 │ │ └── useLogros.js # Hook personalizado para sistema de logros
 │ ├── pages/
-│ │ ├── Bienvenida.jsx
-│ │ ├── Vitrina.jsx
-│ │ ├── RutaAutoguiada.jsx
-│ │ ├── PaginaHito.jsx
-│ │ ├── Perfilamiento.jsx
-│ │ └── MisLogros.jsx
+│ │ ├── Bienvenida.jsx # Landing page
+│ │ ├── Vitrina.jsx # Lista de rutas
+│ │ ├── RutaAutoguiada.jsx # Detalle de una ruta
+│ │ ├── PaginaHito.jsx # Detalle de un hito (destino del QR)
+│ │ ├── Perfilamiento.jsx # Formulario de registro
+│ │ └── MisLogros.jsx # Sistema de gamificación
 │ ├── services/
 │ │ └── firebase.js # Configuración de Firebase
 │ ├── App.jsx # Enrutador principal
 │ └── main.jsx # Punto de entrada
 ├── functions/ # Cloud Functions (backend)
+│ ├── index.js # Punto de entrada de las Functions
+│ ├── hitoFactory.js # Patrón Factory para creación de Hitos
+│ ├── visitaObserver.js # Patrón Observer para notificar visitas/logros
+│ ├── prestadorAdapter.js # Patrón Adapter para integración con prestadores
+│ ├── seed.js # Script para poblar Firestore con datos de prueba
+│ └── package.json
 ├── .env.local # Variables de entorno (no versionado)
-├── firebase.json # Configuración de Firebase
+├── .firebaserc # Configuración del proyecto Firebase
+├── firebase.json # Configuración de Hosting y Functions
 ├── package.json
+├── vite.config.js
 └── README.md
 
 text
@@ -130,7 +138,7 @@ text
 
 ### Requisitos Previos
 - Node.js 18 o superior.
-- npm o yarn.
+- npm.
 - Cuenta de Firebase con acceso al proyecto.
 
 ### Pasos
@@ -139,10 +147,16 @@ text
    ```bash
    git clone https://github.com/JeanS30/casablanca-frontend.git
    cd casablanca-frontend
-Instalar dependencias:
+Instalar dependencias del frontend:
 
 bash
 npm install
+Instalar dependencias del backend (Cloud Functions):
+
+bash
+cd functions
+npm install
+cd ..
 Configurar variables de entorno:
 
 Crear un archivo .env.local en la raíz con las credenciales de Firebase:
@@ -164,10 +178,14 @@ Compilar para producción:
 
 bash
 npm run build
-Desplegar en Firebase Hosting:
+Desplegar en Firebase Hosting (frontend):
 
 bash
-firebase deploy
+firebase deploy --only hosting
+Desplegar Cloud Functions (backend):
+
+bash
+firebase deploy --only functions
 🎯 Rutas Disponibles
 🏛️ Ruta del Casco Histórico
 Recorrido por los principales hitos patrimoniales del centro de Casablanca: Edificio Municipal, Plaza de Armas, Santuario de Lo Vásquez, Iglesia, Centro Cultural y Casona Patrimonial.
@@ -177,6 +195,23 @@ Recorrido autoguiado dentro del museo comunal, con salas de exposiciones arqueol
 
 🌊 Ruta de Localidades Rurales y Borde Costero
 Desde las caletas balleneras hasta los viñedos que abrazan el Pacífico: Caleta Quintay, Playa de Tunquén, Viñedos, Bodegas y Miradores del valle.
+
+🔗 Flujo de Integración entre Frontend y Backend
+El turista escanea un QR que apunta a /hito/{rutaId}/{hitoId}.
+
+PaginaHito.jsx lee el documento del hito directo desde Firestore (fuente de verdad).
+
+Se llama a la Cloud Function escanearHito que:
+
+Usa el patrón Factory para construir el objeto Hito según su tipo.
+
+Usa el patrón Observer para notificar al contador de visitas y verificar logros.
+
+Si la Cloud Function responde → el contenido que devuelve (construido por la Factory) reemplaza el de Firestore.
+
+Si la Cloud Function falla → se mantiene el contenido de Firestore como respaldo (resiliencia).
+
+Se registra la visita en localStorage para el sistema de logros.
 
 🏗️ Arquitectura
 El proyecto sigue el paradigma 4+1 de Kruchten para la descripción de su arquitectura:
@@ -192,18 +227,62 @@ Vista Física: Despliegue sobre Firebase (Hosting + Firestore + Functions).
 Vista de Escenarios: Casos de uso como "Turista realiza la Ruta del Casco Histórico".
 
 Patrones de Diseño Implementados
-Patrón	Aplicación
-Singleton	Instancia única de conexión a Firestore
-Factory	Creación de objetos Hito según su tipo (audio, texto, imagen)
-Observer	Notificación de logros y actualización de contadores
-Adapter	Integración con sistemas externos de prestadores de servicio
+Patrón	Archivo	Aplicación
+Singleton	functions/index.js	Instancia única de conexión a Firestore (initializeApp + getFirestore)
+Factory	functions/hitoFactory.js	Clases HitoAudio, HitoTexto, HitoImagen con Factory que decide qué construir
+Observer	functions/visitaObserver.js	VisitaSubject notifica a ContadorVisitasObserver y NotificadorLogroObserver
+Adapter	functions/prestadorAdapter.js	ViñaAdapter y HotelAdapter traducen formatos externos al interno
+🔒 Seguridad y Reglas de Firestore
+javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /rutas/{rutaId} {
+      allow read: if true;
+      allow write: if false;
+      match /hitos/{hitoId} {
+        allow read: if true;
+        allow write: if false;
+      }
+    }
+    match /logros/{logroId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /registrosTuristas/{registroId} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+    match /prestadoresServicio/{prestadorId} {
+      allow read, write: if false;
+    }
+  }
+}
+Lógica:
+
+Rutas, hitos y logros: Lectura pública, escritura solo desde backend/consola.
+
+Registros de turistas: Cualquiera puede crear uno (enviar el formulario), nadie puede leer los de otros (protege privacidad según Ley 19.628).
+
+Prestadores de servicio: Totalmente privado.
+
+📚 Documentación Adicional
+Ley N° 19.628 — Protección de la Vida Privada (Chile).
+
+Ley N° 20.422 — Igualdad de Oportunidades e Inclusión Social.
+
+IEEE Std 830-1998 — Especificación de Requisitos de Software.
+
+WCAG 2.1 — Pautas de Accesibilidad para el Contenido Web.
+
 👥 Equipo de Desarrollo
-Jean — Desarrollo Frontend (React + Vite), integración con Firebase, sistema de rutas y perfilamiento.
+Jean — Desarrollo Frontend (React + Vite), integración con Firebase, sistema de rutas, formulario de perfilamiento.
 
-Gabriel — Recopilación de contenido turístico, mapa interactivo, estudio de prefactibilidad.
+Gabriel — Recopilación de contenido turístico, mapa interactivo, estudio de prefactibilidad, factibilidad legal y económica.
 
-Sebastián — Configuración de Firebase, Cloud Functions, patrones de diseño y sistema de logros.
+Sebastián — Configuración de Firebase, Cloud Functions, patrones de diseño (Singleton, Factory, Observer, Adapter) y sistema de logros.
 
 Docente: Jocelyn Oriana González Cortés
 Asignatura: Ingeniería de Software
 Institución: INACAP Valparaíso — 2026
+
