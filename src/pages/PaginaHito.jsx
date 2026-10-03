@@ -19,7 +19,7 @@ function PaginaHito() {
   const [error, setError] = useState(null);
   const [toastLogro, setToastLogro] = useState(null);
   const [estado, setEstado] = useState(getLogrosDesbloqueados());
-  const [totalHitos, setTotalHitos] = useState(0); // ✅ CORRECCIÓN 1
+  const [totalHitos, setTotalHitos] = useState(0); // ✅ CORRECCIÓN 2
 
   useEffect(() => {
     const cargar = async () => {
@@ -43,7 +43,7 @@ function PaginaHito() {
           const escanearHito = httpsCallable(functions, 'escanearHito');
           const respuesta = await escanearHito({ rutaId, hitoId });
 
-          // ✅ CORRECCIÓN 2: si la Factory devuelve contenido, se usa
+          // ✅ CORRECCIÓN 3: si la Factory devuelve contenido, se usa
           if (respuesta.data.contenido) setContenido(respuesta.data.contenido);
 
           if (respuesta.data.logroDesbloqueado) {
@@ -66,7 +66,7 @@ function PaginaHito() {
         const otros = todos.filter(h => h.id !== hitoId).slice(0, 3);
         setOtrosHitos(otros);
 
-        // ✅ CORRECCIÓN 1: guardar el total real de hitos
+        // ✅ CORRECCIÓN 2: guardar el total real de hitos
         setTotalHitos(todos.length);
 
         // 5. Registrar visita y verificar logro local
@@ -120,7 +120,7 @@ function PaginaHito() {
 
   const imagenHero = contenido?.imagenUrl || '/hero.jpg';
   const visitadosRuta = estado.hitosVisitados.filter(h => h.startsWith(`${rutaId}/`)).length;
-  const totalRuta = totalHitos; // ✅ CORRECCIÓN 1: usar el total real
+  const totalRuta = totalHitos; // ✅ CORRECCIÓN 2: usar el total real
   const porcentajeRuta = totalRuta > 0 ? Math.round((visitadosRuta / totalRuta) * 100) : 0;
 
   return (

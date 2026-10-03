@@ -45,7 +45,7 @@ const Perfilamiento = () => {
         <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
           <h1>¡Perfil guardado!</h1>
           <p style={{ color: '#aaa' }}>Gracias por ayudarnos a mejorar la experiencia turística en Casablanca.</p>
-          <Link to="/" style={{ color: '#b8860b', textDecoration: 'none', fontWeight: 'bold' }}>
+          <Link to="/rutas" style={{ color: '#b8860b', textDecoration: 'none', fontWeight: 'bold' }}>
             ← Volver a la vitrina
           </Link>
         </div>
@@ -58,66 +58,23 @@ const Perfilamiento = () => {
       <Navbar />
 
       <div style={{ padding: '2rem', maxWidth: '500px', margin: '0 auto' }}>
-        <Link to="/" style={{ color: '#007bff', textDecoration: 'none' }}>← Volver a la vitrina</Link>
+        <Link to="/rutas" style={{ color: '#007bff', textDecoration: 'none' }}>← Volver a la vitrina</Link>
         <h1 style={{ marginTop: '1rem' }}>Tu Perfil de Visitante</h1>
         <p style={{ color: '#aaa' }}>Ayúdanos a mejorar tu experiencia completando este breve formulario.</p>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem' }}>
-          <input
-            name="nacionalidad"
-            placeholder="Nacionalidad"
-            onChange={handleChange}
-            required
-            style={inputStyle}
-          />
-          <input
-            name="edad"
-            type="number"
-            placeholder="Edad"
-            onChange={handleChange}
-            required
-            style={inputStyle}
-          />
+          <input name="nacionalidad" placeholder="Nacionalidad" onChange={handleChange} required style={inputStyle} />
+          <input name="edad" type="number" placeholder="Edad" onChange={handleChange} required style={inputStyle} />
           <select name="genero" onChange={handleChange} required style={inputStyle}>
             <option value="">Selecciona género</option>
             <option value="F">Femenino</option>
             <option value="M">Masculino</option>
             <option value="Otro">Otro</option>
           </select>
-          <input
-            name="motivacion"
-            placeholder="Motivación de viaje (ej. enoturismo, cultura)"
-            onChange={handleChange}
-            style={inputStyle}
-          />
-          <input
-            name="gastoPromedio"
-            type="number"
-            placeholder="Gasto promedio (CLP)"
-            onChange={handleChange}
-            style={inputStyle}
-          />
-          <input
-            name="diasEstadia"
-            type="number"
-            placeholder="Días de estadía"
-            onChange={handleChange}
-            style={inputStyle}
-          />
-          <button
-            type="submit"
-            style={{
-              padding: '0.75rem',
-              backgroundColor: '#b8860b',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer',
-              fontSize: '1rem',
-              fontWeight: 'bold',
-              marginTop: '0.5rem'
-            }}
-          >
+          <input name="motivacion" placeholder="Motivación de viaje (ej. enoturismo, cultura)" onChange={handleChange} style={inputStyle} />
+          <input name="gastoPromedio" type="number" placeholder="Gasto promedio (CLP)" onChange={handleChange} style={inputStyle} />
+          <input name="diasEstadia" type="number" placeholder="Días de estadía" onChange={handleChange} style={inputStyle} />
+          <button type="submit" style={{ padding: '0.75rem', backgroundColor: '#b8860b', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '1rem', fontWeight: 'bold', marginTop: '0.5rem' }}>
             Enviar Perfil
           </button>
         </form>
