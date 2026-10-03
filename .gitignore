@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 functions/serviceAccountKey.json
 functions/serviceAccountKey*.json
+.env
+
