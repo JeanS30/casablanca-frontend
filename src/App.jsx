@@ -1,5 +1,6 @@
 // src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import ScrollToTop from './components/ScrollToTop';
 import Bienvenida from './pages/Bienvenida';
 import Vitrina from './pages/Vitrina';
 import RutaAutoguiada from './pages/RutaAutoguiada';
