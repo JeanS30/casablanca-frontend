@@ -52,7 +52,7 @@ const Vitrina = () => {
         <p style={{ color: '#b8860b', letterSpacing: '2px', fontSize: '0.9rem', marginBottom: '1rem' }}>
           🍷 VALLE DE CASABLANCA
         </p>
-        <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem', color: '#fff' }}>
+        <h1 style={{ fontSize: 'clamp(1.8rem, 6vw, 2.5rem)', lineHeight: '1.2', marginBottom: '1rem', color: '#fff' }}>
           Donde la Brisa del Océano Despierta los Sentidos
         </h1>
         <p style={{ maxWidth: '800px', margin: '0 auto 1.5rem auto', color: '#ccc', lineHeight: '1.7', fontSize: '1.05rem' }}>

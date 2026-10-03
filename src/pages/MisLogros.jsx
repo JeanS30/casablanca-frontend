@@ -156,7 +156,7 @@ const MisLogros = () => {
           </div>
 
           <div style={{ marginTop: '2.5rem' }}>
-            <h1 style={{ fontSize: '2.5rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <h1 style={{ fontSize: 'clamp(1.8rem, 6vw, 2.5rem)', lineHeight: '1.2', margin: 0, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               🏆 Mis Logros
             </h1>
             <p style={{ color: '#bbb', marginTop: '0.5rem', fontSize: '1rem' }}>

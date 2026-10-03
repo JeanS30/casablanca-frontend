@@ -6,10 +6,12 @@ import { doc, getDoc, getDocs, collection } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import Navbar from '../components/Navbar';
 import { marcarHitoVisitado, getLogrosDesbloqueados } from '../hooks/useLogros';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 const PUNTOS_POR_HITO = 10;
 
 function PaginaHito() {
+  const isMobile = useIsMobile();
   const { rutaId, hitoId } = useParams();
   const [contenido, setContenido] = useState(null);
   const [rutaInfo, setRutaInfo] = useState(null);
@@ -155,8 +157,8 @@ function PaginaHito() {
           to={`/ruta/${rutaId}`}
           style={{
             position: 'absolute',
-            top: '1.5rem',
-            right: '2rem',
+            top: isMobile ? '1rem' : '1.5rem',
+            right: isMobile ? '1rem' : '2rem',
             zIndex: 2,
             padding: '0.6rem 1.25rem',
             backgroundColor: 'rgba(20, 20, 20, 0.85)',
@@ -183,9 +185,9 @@ function PaginaHito() {
       </section>
 
       {/* CONTENIDO PRINCIPAL */}
-      <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 2rem 2rem 2rem' }}>
+      <section style={{ maxWidth: '1100px', margin: '0 auto', padding: isMobile ? '0 1rem 2rem 1rem' : '0 2rem 2rem 2rem' }}>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 1.2fr', gap: '1.25rem', marginTop: '-2rem', position: 'relative', zIndex: 2 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'minmax(300px, 1fr) 1.2fr', gap: '1.25rem', marginTop: '-2rem', position: 'relative', zIndex: 2 }}>
           {/* IMAGEN */}
           <div style={{ borderRadius: '14px', overflow: 'hidden', border: '1px solid #1f242c', backgroundColor: '#161b22', position: 'relative', minHeight: '380px' }}>
             {contenido?.imagenUrl ? (
@@ -253,7 +255,7 @@ function PaginaHito() {
         </div>
 
         {/* SECCIÓN INFERIOR */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '1.25rem', marginTop: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1.5fr', gap: '1.25rem', marginTop: '1.5rem' }}>
           <div style={{ backgroundColor: '#161b22', border: '1px solid #1f242c', borderRadius: '14px', padding: '1.75rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
               <span style={{ fontSize: '1.5rem' }}>🍇</span>
@@ -272,7 +274,7 @@ function PaginaHito() {
             {otrosHitos.length === 0 ? (
               <p style={{ color: '#888', fontSize: '0.9rem' }}>No hay otros hitos en esta ruta.</p>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '0.75rem' }}>
                 {otrosHitos.map(hito => (
                   <Link key={hito.id} to={`/hito/${rutaId}/${hito.id}`} style={{ borderRadius: '10px', overflow: 'hidden', backgroundColor: '#0d1117', border: '1px solid #262c36', textDecoration: 'none', color: '#fff', display: 'flex', flexDirection: 'column' }}>
                     <div style={{ height: '100px', backgroundImage: hito.contenidoImagenUrl ? `url("${hito.contenidoImagenUrl}")` : 'none', backgroundColor: hito.contenidoImagenUrl ? 'transparent' : '#1c2128', backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555', fontSize: '2rem' }}>
@@ -290,7 +292,7 @@ function PaginaHito() {
         </div>
 
         {/* BARRA DE PROGRESO AL FINAL */}
-        <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr auto', gap: '1.5rem', alignItems: 'center', backgroundColor: '#161b22', border: '1px solid #d4a017', borderRadius: '14px', padding: '1.5rem', marginTop: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '200px 1fr auto', gap: '1.5rem', alignItems: 'center', backgroundColor: '#161b22', border: '1px solid #d4a017', borderRadius: '14px', padding: '1.5rem', marginTop: '1.5rem' }}>
           <div style={{ height: '100px', borderRadius: '10px', backgroundImage: 'url("/imagenes/vinedos-casablanca.jpg")', backgroundSize: 'cover', backgroundPosition: 'center' }} />
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
